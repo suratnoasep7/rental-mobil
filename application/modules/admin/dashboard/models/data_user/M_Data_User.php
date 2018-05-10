@@ -31,6 +31,6 @@ class M_Data_User extends CI_Model {
         return $this->db->delete('t_user_login');
     }
     function check_data() {
-        return $this->db->get_where('t_user_login',array('username' => $this->input->post('username')));
+        return $this->db->get_where('t_user_login', array('username' => $this->input->post('username')));
     }
 }

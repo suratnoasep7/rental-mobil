@@ -22,7 +22,7 @@ class Data_User extends MX_Controller
 		$data['menu'] = $this->m_data_dashboard->get_data_menu($data_menu);
 		$this->load->view('dashboard/dashboard',$data);
 	}
-	function tambah_user() {
+	public function tambah_user() {
 		$this->form_validation->set_rules('username', 'Username', 'trim|required');
 		$this->form_validation->set_rules('password', 'Password', 'trim|required');
 		$this->form_validation->set_rules('id_level_user', 'Level User', 'trim|required');
@@ -30,19 +30,30 @@ class Data_User extends MX_Controller
 			$this->index();
 		} else {
 			if ($this->m_data_user->check_data()->num_rows() == 1) {
-				$this->index();
+				$data = array('response' => 'username', );
+				$response = json_encode($data);
+				echo $response;
 			} else {
 				$tambah_user = array(
             		'username' => $this->input->post('username'),
             		'password' => get_hash($this->input->post('password')),
             		'id_level_user' => $this->input->post('id_level_user')
         		);
-        		$this->m_data_user->tambah_data_user($tambah_user);	
+        		$message = $this->m_data_user->tambah_data_user($tambah_user);
+        		if ($message == true) {
+        			$data = array('response' => 'success', );
+					$response = json_encode($data);
+					echo $response;
+        		} else {
+        			$data = array('response' => 'error', );
+					$response = json_encode($data);
+					echo $response;
+        		}	
 			}
-			
 		}
     }
-    function edit_user(){
+
+    public function edit_user(){
 		$this->form_validation->set_rules('username', 'Username', 'trim|required');
 		//$this->form_validation->set_rules('password', 'Password', 'trim|required');
 		$this->form_validation->set_rules('id_level_user', 'Level User', 'trim|required');
@@ -83,13 +94,13 @@ class Data_User extends MX_Controller
     	
         
     }
-    function edit_data_user($id){
+    public function edit_data_user($id){
         $data  = array('id_user_login'=>$id);
         $get = $this->m_data_user->get_data_user($data)->row();
         echo json_encode($get);
     }
 
-    function hapus_user($id){
+    public function hapus_user($id){
         $data  = array('id_user_login'=>$id);
         $this->m_data_user->hapus_data_user($data);
     }

@@ -21,75 +21,182 @@ class Data_Mobil extends MX_Controller
 		$data['datatables'] = $this->m_data_mobil->data_mobil();
 		$this->load->view('dashboard/dashboard',$data);
 	}
-	/*function tambah_user() {
-		$this->form_validation->set_rules('username', 'Username', 'trim|required');
-		$this->form_validation->set_rules('password', 'Password', 'trim|required');
-		$this->form_validation->set_rules('id_level_user', 'Level User', 'trim|required');
+	function tambah_mobil() {
+		$this->form_validation->set_rules('merk_mobil', 'Merk Mobil', 'trim|required');
+		$this->form_validation->set_rules('tarif_mobil', 'Tarif Mobil', 'trim|required');
+		$this->form_validation->set_rules('tarif_supir', 'Tarif Supir', 'trim|required');
 		if ($this->form_validation->run() == FALSE) {
 			$this->index();
 		} else {
-			if ($this->m_data_user->check_data()->num_rows() == 1) {
-				$this->index();
+			if ($this->m_data_mobil->check_data()->num_rows() == 1) {
+				$data = array('response' => 'merk', );
+				$response = json_encode($data);
+				echo $response;
 			} else {
-				$tambah_user = array(
-            		'username' => $this->input->post('username'),
-            		'password' => get_hash($this->input->post('password')),
-            		'id_level_user' => $this->input->post('id_level_user')
-        		);
-        		$this->m_data_user->tambah_data_user($tambah_user);	
+				if(!empty($_FILES['file']['name'])) {
+					$acak=rand(00000000000,99999999999);
+					$bersih=$_FILES['file']['name'];
+					$nm=str_replace(" ","_","$bersih");
+					$pisah=explode(".",$nm);
+					$nama_murni_lama = preg_replace("/^(.+?);.*$/", "\\1",$pisah[0]);
+					$nama_murni=date('Y-m-d');
+					$ekstensi_kotor = $pisah[1];
+										
+					$file_type = preg_replace("/^(.+?);.*$/", "\\1", $ekstensi_kotor);
+					$file_type_baru = strtolower($file_type);
+										
+					$ubah=$acak.'-'.$nama_murni; 
+					$n_baru = $ubah.'.'.$file_type_baru;
+						
+					$config['upload_path']	= "./assets/gambar_mobil/";
+					$config['allowed_types']= 'jpg|jpeg';
+					$config['file_name'] = $n_baru;
+					$config['max_size']     = '25000';
+				 
+					$this->load->library('upload', $config);
+				 
+					if ($this->upload->do_upload("file")) {
+						$data	 	= $this->upload->data();
+			 
+						/* PATH */
+						$source             = "./assets/gambar_mobil/".$data['file_name'] ;
+						
+						// Permission Configuration
+						chmod($source, 0777);
+						$img['quality']      = '100%' ;
+						$img['source_image'] = $source;
+						$img['new_image']    = $source;
+						
+						$upd['foto'] = $data['file_name'];
+
+						$tambah_mobil = array(
+            				'nama_mobil' => $this->input->post('merk_mobil'),
+            				'tahun_mobil' => $this->input->post('tahun_mobil'),
+            				'tarif_mobil' => $this->input->post('tarif_mobil'),
+            				'tarif_supir' => $this->input->post('tarif_supir'),
+            				'gambar_mobil' => $upd['foto']
+        				);
+        				$message = $this->m_data_mobil->tambah_data_mobil($tambah_mobil);
+        				if ($message == true) {
+        					$data = array('response' => 'success', );
+							$response = json_encode($data);
+							echo $response;
+        				} else {
+        					$data = array('response' => 'error', );
+							$response = json_encode($data);
+							echo $response;
+        				}
+					}
+				} else {
+					$tambah_mobil = array(
+            			'nama_mobil' => $this->input->post('merk_mobil'),
+            			'tahun_mobil' => $this->input->post('tahun_mobil'),
+            			'tarif_mobil' => $this->input->post('tarif_mobil'),
+            			'tarif_supir' => $this->input->post('tarif_supir')
+        			);
+        			$message = $this->m_data_mobil->tambah_data_mobil($tambah_mobil);
+        			if ($message == true) {
+        				$data = array('response' => 'success', );
+						$response = json_encode($data);
+						echo $response;
+        			} else {
+        				$data = array('response' => 'error', );
+						$response = json_encode($data);
+						echo $response;
+        			}	
+				}	
 			}
 			
 		}
     }
-    function edit_user(){
-		$this->form_validation->set_rules('username', 'Username', 'trim|required');
-		//$this->form_validation->set_rules('password', 'Password', 'trim|required');
-		$this->form_validation->set_rules('id_level_user', 'Level User', 'trim|required');
+    function edit_mobil(){
+		$this->form_validation->set_rules('merk_mobil', 'Merk Mobil', 'trim|required');
+		$this->form_validation->set_rules('tarif_mobil', 'Tarif Mobil', 'trim|required');
+		$this->form_validation->set_rules('tarif_supir', 'Tarif Supir', 'trim|required');
 		
 		if ($this->form_validation->run() == FALSE) {
 			$this->index();
 		} else {
-			if ($this->m_data_user->check_data()->num_rows() == 1) {
-				$db = $this->m_data_user->check_data()->row();
-				if ($this->input->post('password') == '' || $this->input->post('password') == null) {
-					$data  = array('id_user_login' =>$this->input->post('id_user'));
-        			$edit = array(
-            			'username' => $this->input->post('username'),
-            			'password' => $db->password,
-            			'id_level_user' => $this->input->post('id_level_user')
-        			);
-        			$this->m_data_user->edit_data_user($data,$edit);	
-				} else {
-					$data  = array('id_user_login' =>$this->input->post('id_user'));
-        			$edit = array(
-            			'username' => $this->input->post('username'),
-            			'password' => get_hash($this->input->post('password')),
-            			'id_level_user' => $this->input->post('id_level_user')
-        			);
-        			$this->m_data_user->edit_data_user($data,$edit);
-				}
-			} else {
-				$data  = array('id_user_login' =>$this->input->post('id_user'));
+			if (empty($_FILES['file']['name'])) {
+        		$data  = array('id_mobil' =>$this->input->post('id_mobil'));
         		$edit = array(
-            		'username' => $this->input->post('username'),
-            		'password' => get_hash($this->input->post('password')),
-            		'id_level_user' => $this->input->post('id_level_user')
+            		'nama_mobil' => $this->input->post('merk_mobil'),
+            		'tahun_mobil' => $this->input->post('tahun_mobil'),
+            		'tarif_mobil' => $this->input->post('tarif_mobil'),
+            		'tarif_supir' => $this->input->post('tarif_supir')
         		);
-        		$this->m_data_user->edit_data_user($data,$edit);
-			}
+        		$this->m_data_mobil->edit_data_mobil($data,$edit);
+        	} else {
+    			$acak=rand(00000000000,99999999999);
+				$bersih=$_FILES['file']['name'];
+				$nm=str_replace(" ","_","$bersih");
+				$pisah=explode(".",$nm);
+				$nama_murni_lama = preg_replace("/^(.+?);.*$/", "\\1",$pisah[0]);
+				$nama_murni=date('Y-m-d');
+				$ekstensi_kotor = $pisah[1];
+									
+				$file_type = preg_replace("/^(.+?);.*$/", "\\1", $ekstensi_kotor);
+				$file_type_baru = strtolower($file_type);
+									
+				$ubah=$acak.'-'.$nama_murni; 
+				$n_baru = $ubah.'.'.$file_type_baru;
+					
+				$config['upload_path']	= "./assets/gambar_mobil/";
+				$config['allowed_types']= 'jpg|jpeg';
+				$config['file_name'] = $n_baru;
+				$config['max_size']     = '25000';
+			 
+				$this->load->library('upload', $config);
+			 
+				if ($this->upload->do_upload("file")) {
+					$data	 	= $this->upload->data();
+		 
+					/* PATH */
+					$source             = "./assets/gambar_mobil/".$data['file_name'] ;
+					
+					// Permission Configuration
+					chmod($source, 0777) ;
+		 
+					$img['quality']      = '100%' ;
+					$img['source_image'] = $source;
+					$img['new_image']    = $source;
+					
+					$upd['foto'] = $data['file_name'];
+		 
+					$data  = array('id_mobil' =>$this->input->post('id_mobil'));
+	        		$edit = array(
+	            		'nama_mobil' => $this->input->post('merk_mobil'),
+	            		'tahun_mobil' => $this->input->post('tahun_mobil'),
+	            		'tarif_mobil' => $this->input->post('tarif_mobil'),
+	            		'tarif_supir' => $this->input->post('tarif_supir'),
+	            		'gambar_mobil' => $upd['foto']
+	        		);
+    				$this->m_data_mobil->edit_data_mobil($data,$edit);
+				}
+        	}
+			
 			
 		}
     	
         
     }
-    function edit_data_user($id){
-        $data  = array('id_user_login'=>$id);
-        $get = $this->m_data_user->get_data_user($data)->row();
+    function edit_data_mobil($id){
+        $data  = array('id_mobil'=>$id);
+        $get = $this->m_data_mobil->get_data_mobil($data)->row();
         echo json_encode($get);
     }
 
-    function hapus_user($id){
-        $data  = array('id_user_login'=>$id);
-        $this->m_data_user->hapus_data_user($data);
-    }*/
+    function hapus_mobil($id){
+        $data  = array('id_mobil'=>$id);
+        $get = $this->m_data_mobil->get_data_mobil($data)->row();
+        $image = $get->gambar_mobil;
+        $message = $this->m_data_mobil->hapus_data_mobil($data);
+        if ($message == true) {
+        	if ($image !== '') {
+        		$source = "./assets/gambar_mobil/".$image;
+				chmod($source, 0777);
+        		unlink($source);
+        	}
+        }
+    }
 }

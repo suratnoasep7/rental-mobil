@@ -49,30 +49,67 @@
 		$('#example2').dataTable();
 		$('.add').click(function(){
 			$('#addModal').modal('show');
-			$('#form')[0].reset();
+			$('#submitTambah')[0].reset();
 		});
-		$('#form').submit(function(){
-			$.ajax({
-				url :"<?php echo site_url();?>dashboard/data_user/tambah_user",
-				type:"post",
-				data:$("#form").serialize(),
-				success:function(){
-					$('#addModal').modal('hide');
-					location.reload();
-				}
-			})
-		});
-		$('#form2').click(function(){
-			$.ajax({
-				url :"<?php echo site_url();?>dashboard/data_user/edit_user",
-				type:"post",
-				data:$("#form2").serialize(),
-				success:function(){
-					$('#editModal').modal('hide');
-					location.reload();
-				}
-			})
-		});
+		$('#submitTambah').submit(function(e){
+            e.preventDefault();
+            	Pace.start(); 
+                 $.ajax({
+                    url:'<?php echo base_url();?>dashboard/data_user/tambah_user',
+                    type:"post",
+                    data:new FormData(this), //this is formData
+                    processData:false,
+                    contentType:false,
+                    cache:false,
+                    async:false,
+                    success: function(data){
+                    	var msg = JSON.parse(data);
+                    	if (msg.response == 'username') {
+                    		$.alert({
+                            	title: 'Error',
+                            	icon: 'fa fa-warning',
+                            	type: 'red',
+                            	content: 'Username sudah Ada',
+                            	animation: 'bottom',
+        						closeAnimation: 'bottom',
+        						animateFromElement: false
+                        	});
+                    	} else if(msg.response == 'error') {
+                    		$.alert({
+                            	title: 'Error',
+                            	icon: 'fa fa-warning',
+                            	type: 'red',
+                            	content: 'Mohon Isi dengan Baik dan Benar',
+                            	animation: 'bottom',
+        						closeAnimation: 'bottom',
+        						animateFromElement: false
+                        	});
+                    	} else {
+                    		location.reload();
+                    		$('#addModal').modal('hide');
+                    		Pace.stop();
+                    	}	 
+                   	}
+                 });         	
+        });
+        $('#submitEdit').submit(function(e){
+            e.preventDefault();
+            	Pace.start(); 
+                 $.ajax({
+                    url:'<?php echo base_url();?>dashboard/data_user/edit_user',
+                    type:"post",
+                    data:new FormData(this), //this is formData
+                    processData:false,
+                    contentType:false,
+                    cache:false,
+                    async:false,
+                    success: function(data){
+                    	location.reload();
+                    	$('#editModal').modal('hide');
+                    	Pace.stop();	 
+                   	}
+                 });         	
+        });
 	});
 function edit(id){
 	$.getJSON('<?php echo site_url();?>dashboard/data_user/edit_data_user/'+id,
@@ -86,15 +123,42 @@ function edit(id){
 	);
 }
 function del(id){
-	if(confirm('Yakin menghapus data ?')){
-		$.ajax({
-				url :"<?php echo site_url();?>dashboard/data_user/hapus_user/"+id,
-				type:"post",
-				success:function(){
-					location.reload();
+	$.confirm({
+		title: 'Hapus Data',
+		icon: 'fa fa-trash',
+		content: 'Apakah anda yakin ingin menhapus data ?',
+		closeIcon: false,
+        animation: 'bottom',
+        closeAnimation: 'bottom',
+        animateFromElement: false,
+        type: 'red',
+        theme: 'modern',
+        buttons: {
+        	yes: {
+				text: 'Ya',
+				action: function() {
+					Pace.start();
+					$.ajax({
+						url :"<?php echo site_url();?>dashboard/data_user/hapus_user/"+id,
+						type:"post",
+						beforeSend: function() {
+							Pace.start();
+						},
+						success:function(){
+							Pace.stop();
+							location.reload();
+						}
+					});
 				}
-			})
-	}
+			},
+			no: {
+				text: 'Tidak',
+				action: function() {
+					location.reload();
+				} 
+			},
+		}
+	});
 }
 </script>
 <div class="modal fade bs-example-modal-lg" id="addModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -104,7 +168,7 @@ function del(id){
 			<div class="modal-header">
 				<h4 class="modal-title" id="myModalLabel">Tambah Data User</h4>
             </div>
-            <form class="form-horizontal form-label-left" id="form" name="form">
+            <form class="form-horizontal form-label-left" id="submitTambah">
 				<div class="modal-body">
 					<div class="row">
 						<div class="col-md-6">
@@ -142,7 +206,7 @@ function del(id){
 	                </div>
            		</div>
             	<div class="modal-footer">
-            		<button type="button" class="btn btn-default" data-dismiss="modal"><i class="icon-close"></i> <span>Tutup</span></button>
+            		<button type="button" class="btn btn-default btn-close" data-dismiss="modal"><i class="icon-close"></i> <span>Tutup</span></button>
                		<button type="submit" class="btn btn-primary" id="save"><i class="icon-check"></i> <span>Simpan</span></button>
             	</div>
             </form>
@@ -155,7 +219,7 @@ function del(id){
 			<div class="modal-header">
 				<h4 class="modal-title" id="myModalLabel">Edit Data User</h4>
             </div>
-            <form class="form-horizontal form-label-left" id="form2" name="form2">
+            <form class="form-horizontal form-label-left" id="submitEdit">
 				<div class="modal-body">
 					<div class="row">
 						<div class="col-md-6">

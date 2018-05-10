@@ -20,6 +20,9 @@
 <link rel="stylesheet" href="<?php echo base_url();?>assets/css/themify-icons/themify-icons.css" />
 <link rel="stylesheet" href="<?php echo base_url();?>assets/css/simple-lineicon/simple-line-icons.css" />
 <link rel="stylesheet" href="<?php echo base_url();?>assets/plugins/datatables/css/dataTables.bootstrap.min.css" />
+<link rel="stylesheet" href="<?php echo base_url();?>assets/plugins/pace/themes/blue/pace-theme-flash.css" />
+<link rel="stylesheet" href="<?php echo base_url();?>assets/plugins/jquery-confirm/jquery-confirm.min.css" />
+<link rel="stylesheet" href="<?php echo base_url();?>assets/plugins/datepicker/bootstrap-datepicker.css" />
 <script src="<?php echo base_url();?>assets/js/jquery.min.js"></script>
 <script src="<?php echo base_url();?>assets/bootstrap/js/bootstrap.min.js"></script> 
 
@@ -35,7 +38,14 @@
 <script src="<?php echo base_url();?>assets/plugins/peity/jquery.peity.min.js"></script> 
 <script src="<?php echo base_url();?>assets/plugins/functions/jquery.peity.init.js"></script>
 <script src="<?php echo base_url(); ?>assets/plugins/datatables/jquery.dataTables.min.js"></script> 
-<script src="<?php echo base_url(); ?>assets/plugins/datatables/dataTables.bootstrap.min.js"></script> 
+<script src="<?php echo base_url(); ?>assets/plugins/datatables/dataTables.bootstrap.min.js"></script>
+<script src="<?php echo base_url();?>assets/plugins/pace/pace.js"></script>
+<script src="<?php echo base_url();?>assets/plugins/jquery-confirm/jquery-confirm.min.js"></script>
+<script src="<?php echo base_url();?>assets/plugins/datepicker/bootstrap-datepicker.js"></script>
+<script src="<?php echo base_url();?>assets/plugins/jquery-mask/jquery.mask.min.js"></script>
+<script>
+	Pace.start();
+</script> 
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -78,12 +88,13 @@
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">MAIN MENU</li>
         <li class="<?php if($this->uri->segment(1)=="dashboard" && $this->uri->segment(2)==""){echo "active";}?>"><a href="<?php echo base_url('dashboard');?>"><i class="icon-grid"></i> <span>Dashboard</span></a></li>
-        <li class="<?php if($this->uri->segment(1)=="dashboard" && $this->uri->segment(2)=="data_user" || $this->uri->segment(2)=="data_mobil"){echo "active";}?> treeview"> <a href="#"> <i class="icon-layers"></i> <span>Data Master</span> <span class="pull-right-container"> <i class="fa fa-angle-left pull-right"></i> </span> </a>
+        <li class="<?php if($this->uri->segment(1)=="dashboard" && $this->uri->segment(2)=="data_user" || $this->uri->segment(2)=="data_mobil" || $this->uri->segment(2)=="data_booking"){echo "active";}?> treeview"> <a href="#"> <i class="icon-layers"></i> <span>Data Master</span> <span class="pull-right-container"> <i class="fa fa-angle-left pull-right"></i> </span> </a>
           <ul class="treeview-menu">
             <?php 
         	foreach ($menu->result() as $row) {
+        		$link_menu = $row->child_menu;
         	?>
-        	<li><a href="<?php echo base_url($row->link_menu);?>"><i class="fa fa-angle-right"></i> <span><?php echo $row->nama_menu ?></span></a></li>
+        	<li class='<?php if($this->uri->segment(1)=="dashboard" && $this->uri->segment(2)=="$link_menu"){echo "active";}?>'><a href="<?php echo base_url($row->link_menu);?>"><i class="fa fa-angle-right"></i> <span><?php echo $row->nama_menu ?></span></a></li>
         	<?php
         		} 
        		?>
